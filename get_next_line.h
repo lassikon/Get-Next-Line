@@ -6,7 +6,7 @@
 /*   By: lkonttin <lkonttin@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/17 09:54:41 by lkonttin          #+#    #+#             */
-/*   Updated: 2023/11/20 15:52:28 by lkonttin         ###   ########.fr       */
+/*   Updated: 2023/11/25 13:01:10 by lkonttin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,5 +23,10 @@
 char	*get_next_line(int fd);
 char	*init_buff(size_t size);
 char	*read_file(int fd, char *buf, char *leftovers);
+char	*ft_strchr(const char *s, int c);
+void	save_leftovers(char *buf, char *leftovers);
+void	add_to_line(char *line, char *buf, char *leftovers);
+size_t	ft_strlen(const char *s);
+char	*ft_strjoin(char const *s1, char const *s2);
 
 #endif

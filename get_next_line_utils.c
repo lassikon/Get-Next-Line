@@ -6,42 +6,21 @@
 /*   By: lkonttin <lkonttin@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/17 09:56:51 by lkonttin          #+#    #+#             */
-/*   Updated: 2023/11/20 15:52:25 by lkonttin         ###   ########.fr       */
+/*   Updated: 2023/11/25 13:02:51 by lkonttin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize)
+size_t	ft_strlen(const char *s)
 {
-	char	*str_src;
 	size_t	i;
 
-	str_src = (char *)src;
 	i = 0;
-	if (dstsize == 0)
-		return (ft_strlen(src));
-	while (i < (dstsize - 1) && str_src[i] != '\0')
-	{
-		dst[i] = str_src[i];
+	while (s[i] != '\0')
 		i++;
-	}
-	dst[i] = '\0';
-	return (ft_strlen(src));
+	return (i);
 }
-char	*ft_strdup(const char *s1)
-{
-	char	*str;
-	size_t	len;
-
-	len = ft_strlen(s1);
-	str = (char *) malloc(sizeof(char) * (len + 1));
-	if (!str)
-		return (NULL);
-	ft_strlcpy(str, s1, len + 1);
-	return (str);
-}
-
 
 char	*ft_strjoin(char const *s1, char const *s2)
 {
@@ -68,27 +47,6 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	return (str);
 }
 
-size_t	ft_strlcat(char *dst, const char *src, size_t dstsize)
-{
-	size_t	d;
-	size_t	s;
-
-	d = 0;
-	s = 0;
-	if (dstsize == 0)
-		return (ft_strlen(src));
-	while (dst[d] && d < dstsize)
-		d++;
-	while ((d + s + 1) < dstsize && src[s] != '\0')
-	{
-		dst[d + s] = src[s];
-		s++;
-	}
-	if (d < dstsize)
-		dst[d + s] = '\0';
-	return (d + ft_strlen(src));
-}
-
 char	*ft_strchr(const char *s, int c)
 {
 	while (*s != (char)c)
@@ -99,39 +57,23 @@ char	*ft_strchr(const char *s, int c)
 	}
 	return ((char *)s);
 }
-/*
-Locates the first occurrence of c (converted to a char)
-in the string pointed to by s.
-Returns a pointer to the located character, or NULL if the
-character does not appear in the string.
-If c == '\0', locates to the terminating '\0' of the string.
-*/
 
 char	*init_buff(size_t size)
 {
-	unsigned char	*buff;
-	size_t			check_max;
+	char	*buf;
 
-	buff = malloc(sizeof(char) * size);
-	if (buff == (NULL))
-		return (buff);
+	buf = malloc(sizeof(char) * size);
+	if (buf == (NULL))
+		return (buf);
 	while (size > 0)
 	{
-		buff[size - 1] = '\0';
+		buf[size - 1] = '\0';
 		size--;
 	}
-	return (buff);
+	return (buf);
 }
-int	locate_end(char *line)
-{
-	int	i;
 
-	i = 0;
-	while (line[i] != '\0')
-		i++;
-	return (i);
-}
-static void	save_leftovers(char *buf, char *leftovers)
+void	save_leftovers(char *buf, char *leftovers)
 {
 	while (*buf && *buf != '\n')
 		buf++;
@@ -144,7 +86,7 @@ static void	save_leftovers(char *buf, char *leftovers)
 	*leftovers = '\0';
 }
 
-static void	add_to_line(char *line, char *buf, char *leftovers)
+void	add_to_line(char *line, char *buf, char *leftovers)
 {
 	while (*line)
 		line++;
@@ -153,11 +95,11 @@ static void	add_to_line(char *line, char *buf, char *leftovers)
 		while (*leftovers)
 		{
 			*line = *leftovers;
+			*leftovers = '\0';
 			line++;
 			leftovers++;
 		}
 	}
-	free(leftovers);
 	while (*buf && *buf != '\n')
 	{
 		*line = *buf;
@@ -169,12 +111,12 @@ static void	add_to_line(char *line, char *buf, char *leftovers)
 		save_leftovers(buf, leftovers);
 }
 
-char	*read_file(int fd, char *buf)
+char	*read_file(int fd, char *buf, char *leftovers)
 {
 	int			bytes_read;
-	static char	*leftovers;
 	char		*line;
 
+	line = init_buff(BUFFER_SIZE + 1);
 	bytes_read = 0;
 	while (bytes_read >= 0)
 	{
@@ -185,7 +127,6 @@ char	*read_file(int fd, char *buf)
 			save_leftovers(buf, leftovers);
 			break ;
 		}
-		
 	}
 	return (line);
 }
