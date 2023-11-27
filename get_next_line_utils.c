@@ -6,7 +6,7 @@
 /*   By: lkonttin <lkonttin@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/17 09:56:51 by lkonttin          #+#    #+#             */
-/*   Updated: 2023/11/25 13:02:51 by lkonttin         ###   ########.fr       */
+/*   Updated: 2023/11/27 15:14:22 by lkonttin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,79 +56,6 @@ char	*ft_strchr(const char *s, int c)
 		s++;
 	}
 	return ((char *)s);
-}
-
-char	*init_buff(size_t size)
-{
-	char	*buf;
-
-	buf = malloc(sizeof(char) * size);
-	if (buf == (NULL))
-		return (buf);
-	while (size > 0)
-	{
-		buf[size - 1] = '\0';
-		size--;
-	}
-	return (buf);
-}
-
-void	save_leftovers(char *buf, char *leftovers)
-{
-	while (*buf && *buf != '\n')
-		buf++;
-	while (*buf)
-	{
-		*leftovers = *buf;
-		leftovers++;
-		buf++;
-	}
-	*leftovers = '\0';
-}
-
-void	add_to_line(char *line, char *buf, char *leftovers)
-{
-	while (*line)
-		line++;
-	if (leftovers != NULL)
-	{
-		while (*leftovers)
-		{
-			*line = *leftovers;
-			*leftovers = '\0';
-			line++;
-			leftovers++;
-		}
-	}
-	while (*buf && *buf != '\n')
-	{
-		*line = *buf;
-		line++;
-		buf++;
-	}
-	*line = '\0';
-	if (*buf)
-		save_leftovers(buf, leftovers);
-}
-
-char	*read_file(int fd, char *buf, char *leftovers)
-{
-	int			bytes_read;
-	char		*line;
-
-	line = init_buff(BUFFER_SIZE + 1);
-	bytes_read = 0;
-	while (bytes_read >= 0)
-	{
-		bytes_read = read(fd, buf, BUFFER_SIZE);
-		add_to_line(line, buf, leftovers);
-		if (ft_strchr(buf, '\n'))
-		{
-			save_leftovers(buf, leftovers);
-			break ;
-		}
-	}
-	return (line);
 }
 
 /* The read function returns the number of bytes read,

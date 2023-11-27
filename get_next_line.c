@@ -6,7 +6,7 @@
 /*   By: lkonttin <lkonttin@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/17 09:53:54 by lkonttin          #+#    #+#             */
-/*   Updated: 2023/11/25 13:59:40 by lkonttin         ###   ########.fr       */
+/*   Updated: 2023/11/27 15:52:29 by lkonttin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,62 +27,21 @@ char	*init_buff(size_t size)
 	return (buf);
 }
 
-void	save_leftovers(char *buf, char *leftovers)
+char	*trim_and_save(char *line, char **leftovers)
 {
-	while (*buf && *buf != '\n')
-		buf++;
-	while (*buf)
-	{
-		*leftovers = *buf;
-		leftovers++;
-		buf++;
-	}
-	*leftovers = '\0';
-}
-
-void	add_to_line(char *line, char *buf, char *leftovers)
-{
-	while (*line)
+	while (*line != '\n')
 		line++;
-	if (leftovers != NULL)
+	line++;
+	if (*line != '\0')
 	{
-		while (*leftovers)
+		*leftovers = ft_strjoin(line, "");
+		while (*line)
 		{
-			*line = *leftovers;
-			*leftovers = '\0';
+			*line = '\0';
 			line++;
-			leftovers++;
 		}
 	}
-	while (*buf && *buf != '\n')
-	{
-		*line = *buf;
-		line++;
-		buf++;
-	}
-	*line = '\0';
-	if (*buf)
-		save_leftovers(buf, leftovers);
-}
-
-char	*read_file(int fd, char *buf, char *leftovers)
-{
-	int			bytes_read;
-	char		*line;
-
-	line = init_buff(BUFFER_SIZE + 1);
-	bytes_read = 0;
-	while (bytes_read >= 0)
-	{
-		bytes_read = read(fd, buf, BUFFER_SIZE);
-		add_to_line(line, buf, leftovers);
-		if (ft_strchr(buf, '\n'))
-		{
-			save_leftovers(buf, leftovers);
-			break ;
-		}
-	}
-	return (line);
+	return (&line[0]);
 }
 
 char	*get_next_line(int fd)
@@ -90,15 +49,31 @@ char	*get_next_line(int fd)
 	char		*buf;
 	char		*line;
 	static char	*leftovers;
+	int			bytes_read;
 	
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	buf = init_buff(BUFFER_SIZE + 1);
+	bytes_read = 1;
 	if (!leftovers)
+	{
 		leftovers = init_buff(BUFFER_SIZE + 1);
-	line = read_file(fd, buf, leftovers);
+		line = init_buff(BUFFER_SIZE + 1);
+	}
+	else
+	{
+		line = ft_strjoin("", leftovers);
+		free(leftovers);
+	}
+	while (bytes_read > 0)
+	{
+		bytes_read = read(fd, buf, BUFFER_SIZE);
+		line = ft_strjoin(line, buf);
+		if (ft_strchr(buf, '\n'))
+			break ;
+	}
 	free(buf);
-	return (line);
+	return (trim_and_save(line, &leftovers));
 }
 /* The read function returns the number of bytes read,
 and it can return 0 if the end of the file is reached.
