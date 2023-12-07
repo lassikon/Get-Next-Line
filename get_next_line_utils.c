@@ -5,60 +5,106 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: lkonttin <lkonttin@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/11/17 09:56:51 by lkonttin          #+#    #+#             */
-/*   Updated: 2023/11/27 15:14:22 by lkonttin         ###   ########.fr       */
+/*   Created: 2023/12/06 20:53:07 by lkonttin          #+#    #+#             */
+/*   Updated: 2023/12/07 15:08:19 by lkonttin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-size_t	ft_strlen(const char *s)
+char	*ft_calloc(size_t size)
 {
+	char	*ptr;
 	size_t	i;
 
+	ptr = malloc(size);
+	if (ptr == (NULL))
+		return (ptr);
 	i = 0;
-	while (s[i] != '\0')
+	while (i < size)
+	{
+		ptr[i] = '\0';
 		i++;
-	return (i);
+	}
+	return (ptr);
 }
 
-char	*ft_strjoin(char const *s1, char const *s2)
+t_list	*ft_lstlast(t_list *list)
 {
-	size_t	d;
-	size_t	s;
-	char	*str;
-
-	str = (char *) malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1));
-	if (!str)
-		return (NULL);
-	d = 0;
-	while (s1[d])
+	while (list != NULL)
 	{
-		str[d] = s1[d];
-		d++;
+		if (list->next == NULL)
+			return (list);
+		list = list->next;
 	}
-	s = 0;
-	while (s2[s])
-	{
-		str[d + s] = s2[s];
-		s++;
-	}
-	str[d + s] = '\0';
-	return (str);
+	return (list);
 }
 
-char	*ft_strchr(const char *s, int c)
+int	len_to_newline(t_list *list)
 {
-	while (*s != (char)c)
+	int	i;
+	int	len;
+
+	if (list == NULL)
+		return (0);
+	len = 0;
+	while (list != NULL)
 	{
-		if (*s == '\0')
-			return (NULL);
-		s++;
+		i = 0;
+		while (list->buf[i] != '\0')
+		{
+			if (list->buf[i] == '\n')
+			{
+				len++;
+				return (len);
+			}
+			i++;
+			len++;
+		}
+		list = list->next;
 	}
-	return ((char *)s);
+	return (len);
 }
 
-/* The read function returns the number of bytes read,
-and it can return 0 if the end of the file is reached.
-If an error occurs, it returns -1. */
+int	found_newline(t_list *list)
+{
+	int	i;
 
+	if (list == NULL)
+		return (0);
+	while (list)
+	{
+		i = 0;
+		while (list->buf[i] && i < BUFFER_SIZE)
+		{
+			if (list->buf[i] == '\n')
+				return (1);
+			i++;
+		}
+		list = list->next;
+	}
+	return (0);
+}
+
+void	clean_and_free(t_list **list, t_list *clean_node, char *buf)
+{
+	t_list	*tmp;
+
+	if (*list == NULL)
+		return ;
+	while (*list)
+	{
+		tmp = (*list)->next;
+		free((*list)->buf);
+		free(*list);
+		*list = tmp;
+	}
+	*list = NULL;
+	if (clean_node->buf[0])
+		*list = clean_node;
+	else
+	{
+		free(buf);
+		free(clean_node);
+	}
+}
