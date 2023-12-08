@@ -6,7 +6,7 @@
 /*   By: lkonttin <lkonttin@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 20:15:29 by lkonttin          #+#    #+#             */
-/*   Updated: 2023/12/07 17:24:52 by lkonttin         ###   ########.fr       */
+/*   Updated: 2023/12/08 13:59:32 by lkonttin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ void	trim_list(t_list **list)
 
 	buf = ft_calloc(BUFFER_SIZE + 1);
 	clean_node = malloc(sizeof(t_list));
-	if (NULL == buf || NULL == clean_node)
+	if (buf == NULL || clean_node == NULL)
 		return ;
 	last_node = ft_lstlast(*list);
 	i = 0;
@@ -97,13 +97,11 @@ void	create_list(t_list **list, int fd)
 		if (buf == NULL)
 			return ;
 		bytes_read = read(fd, buf, BUFFER_SIZE);
-		/* if (bytes_read < 0)
+		if (bytes_read < 0)
 		{
-			free(buf);
-			free((*list)->buf);
-			free(*list);
+			clean_and_free(list, NULL, buf);
 			return ;
-		} */
+		}
 		if (bytes_read == 0)
 		{
 			free(buf);
@@ -120,7 +118,11 @@ char	*get_next_line(int fd)
 	int				str_len;
 
 	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, &next_line, 0) < 0)
+	{
+		if (list)
+			clean_and_free(&list, NULL, "");
 		return (NULL);
+	}
 	create_list(&list, fd);
 	if (list == NULL)
 		return (NULL);

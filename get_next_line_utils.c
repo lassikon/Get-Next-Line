@@ -6,7 +6,7 @@
 /*   By: lkonttin <lkonttin@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 20:53:07 by lkonttin          #+#    #+#             */
-/*   Updated: 2023/12/07 15:08:19 by lkonttin         ###   ########.fr       */
+/*   Updated: 2023/12/08 13:59:35 by lkonttin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,8 @@ char	*ft_calloc(size_t size)
 	size_t	i;
 
 	ptr = malloc(size);
-	if (ptr == (NULL))
-		return (ptr);
+	if (ptr == NULL)
+		return (NULL);
 	i = 0;
 	while (i < size)
 	{
