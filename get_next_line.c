@@ -6,38 +6,30 @@
 /*   By: lkonttin <lkonttin@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 20:15:29 by lkonttin          #+#    #+#             */
-/*   Updated: 2023/12/08 13:59:32 by lkonttin         ###   ########.fr       */
+/*   Updated: 2023/12/13 14:48:55 by lkonttin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-void	trim_list(t_list **list)
+int	found_newline(t_list *list)
 {
-	t_list	*last_node;
-	t_list	*clean_node;
-	int		i;
-	int		k;
-	char	*buf;
+	int	i;
 
-	buf = ft_calloc(BUFFER_SIZE + 1);
-	clean_node = malloc(sizeof(t_list));
-	if (buf == NULL || clean_node == NULL)
-		return ;
-	last_node = ft_lstlast(*list);
-	i = 0;
-	k = 0;
-	while (last_node->buf[i] && last_node->buf[i] != '\n')
-		++i;
-	while (last_node->buf[i])
+	if (list == NULL)
+		return (0);
+	while (list)
 	{
-		i++;
-		buf[k] = last_node->buf[i];
-		k++;
+		i = 0;
+		while (list->buf[i] && i < BUFFER_SIZE)
+		{
+			if (list->buf[i] == '\n')
+				return (1);
+			i++;
+		}
+		list = list->next;
 	}
-	clean_node->buf = buf;
-	clean_node->next = NULL;
-	clean_and_free(list, clean_node, buf);
+	return (0);
 }
 
 void	copy_str(t_list *list, char *str)
@@ -59,16 +51,14 @@ void	copy_str(t_list *list, char *str)
 				str[k + 1] = '\0';
 				return ;
 			}
-			str[k] = list->buf[i];
-			k++;
-			i++;
+			str[k++] = list->buf[i++];
 		}
 		list = list->next;
 	}
 	str[k] = '\0';
 }
 
-void	add_to_list(t_list **list, char *buf)
+int	add_to_list(t_list **list, char *buf)
 {
 	t_list	*new_node;
 	t_list	*last_node;
@@ -76,16 +66,17 @@ void	add_to_list(t_list **list, char *buf)
 	last_node = ft_lstlast(*list);
 	new_node = malloc(sizeof(t_list));
 	if (new_node == NULL)
-		return ;
+		return (0);
 	if (last_node == NULL)
 		*list = new_node;
 	else
 		last_node->next = new_node;
 	new_node->buf = buf;
 	new_node->next = NULL;
+	return (1);
 }
 
-void	create_list(t_list **list, int fd)
+int	create_list(t_list **list, int fd)
 {
 	int		bytes_read;
 	char	*buf;
@@ -95,46 +86,40 @@ void	create_list(t_list **list, int fd)
 	{
 		buf = ft_calloc(BUFFER_SIZE + 1);
 		if (buf == NULL)
-			return ;
+			return (0);
 		bytes_read = read(fd, buf, BUFFER_SIZE);
-		if (bytes_read < 0)
-		{
-			clean_and_free(list, NULL, buf);
-			return ;
-		}
 		if (bytes_read == 0)
 		{
 			free(buf);
-			return ;
+			return (1);
 		}
-		add_to_list(list, buf);
+		if (!(add_to_list(list, buf)) || bytes_read < 0)
+		{
+			free(buf);
+			return (0);
+		}
 	}
+	return (1);
 }
 
 char	*get_next_line(int fd)
 {
 	static t_list	*list = NULL;
-	char			*next_line;
+	char			*line;
 	int				str_len;
 
-	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, &next_line, 0) < 0)
-	{
-		if (list)
-			clean_and_free(&list, NULL, "");
-		return (NULL);
-	}
-	create_list(&list, fd);
+	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, &line, 0) < 0)
+		return (clean_and_free(&list, 0, 0), NULL);
+	if (!(create_list(&list, fd)))
+		return (clean_and_free(&list, 0, 0), NULL);
 	if (list == NULL)
 		return (NULL);
 	str_len = len_to_newline(list);
-	next_line = malloc(str_len + 1);
-	if (next_line == NULL)
-		return (NULL);
-	copy_str(list, next_line);
-	trim_list(&list);
-	return (next_line);
+	line = malloc(str_len + 1);
+	if (line == NULL)
+		return (clean_and_free(&list, 0, 0), NULL);
+	copy_str(list, line);
+	if (!(trim_list(&list)))
+		return (clean_and_free(&list, 0, line), NULL);
+	return (line);
 }
-
-/* The read function returns the number of bytes read,
-and it can return 0 if the end of the file is reached.
-If an error occurs, it returns -1. */
