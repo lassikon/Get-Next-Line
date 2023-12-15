@@ -6,13 +6,13 @@
 /*   By: lkonttin <lkonttin@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/13 15:03:26 by lkonttin          #+#    #+#             */
-/*   Updated: 2023/12/13 15:39:05 by lkonttin         ###   ########.fr       */
+/*   Updated: 2023/12/15 12:39:03 by lkonttin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line_bonus.h"
 
-int	found_newline(t_list *list)
+static int	found_newline(t_list *list)
 {
 	int	i;
 
@@ -32,7 +32,7 @@ int	found_newline(t_list *list)
 	return (0);
 }
 
-void	copy_str(t_list *list, char *str)
+static void	copy_str(t_list *list, char *str)
 {
 	int	i;
 	int	k;
@@ -58,7 +58,7 @@ void	copy_str(t_list *list, char *str)
 	str[k] = '\0';
 }
 
-int	add_to_list(t_list **list, char *buf, int fd)
+static int	add_to_list(t_list **list, char *buf, int fd)
 {
 	t_list	*new_node;
 	t_list	*last_node;
@@ -76,7 +76,7 @@ int	add_to_list(t_list **list, char *buf, int fd)
 	return (1);
 }
 
-int	create_list(t_list **list, int fd)
+static int	create_list(t_list **list, int fd)
 {
 	int		bytes_read;
 	char	*buf;
@@ -109,17 +109,17 @@ char	*get_next_line(int fd)
 	int				str_len;
 
 	if (fd < 0 || fd > OPEN_MAX || BUFFER_SIZE <= 0 || read(fd, &line, 0) < 0)
-		return (clean_and_free(&list[fd], 0, 0), NULL);
+		return (clean_and_free(&list[fd], 0, 0));
 	if (!(create_list(list, fd)))
-		return (clean_and_free(&list[fd], 0, 0), NULL);
+		return (clean_and_free(&list[fd], 0, 0));
 	if (list[fd] == NULL)
 		return (NULL);
 	str_len = len_to_newline(list[fd]);
-	line = malloc(str_len + 1);
+	line = ft_calloc(str_len + 1);
 	if (line == NULL)
-		return (clean_and_free(&list[fd], 0, 0), NULL);
+		return (clean_and_free(&list[fd], 0, 0));
 	copy_str(list[fd], line);
 	if (!(trim_list(&list[fd])))
-		return (clean_and_free(&list[fd], 0, line), NULL);
+		return (clean_and_free(&list[fd], 0, line));
 	return (line);
 }

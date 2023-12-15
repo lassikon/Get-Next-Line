@@ -6,7 +6,7 @@
 /*   By: lkonttin <lkonttin@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/13 15:04:57 by lkonttin          #+#    #+#             */
-/*   Updated: 2023/12/13 15:29:33 by lkonttin         ###   ########.fr       */
+/*   Updated: 2023/12/15 12:39:04 by lkonttin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,12 +93,12 @@ int	trim_list(t_list **list)
 	return (1);
 }
 
-void	clean_and_free(t_list **list, t_list *clean_node, char *buf)
+char	*clean_and_free(t_list **list, t_list *clean_node, char *buf)
 {
 	t_list	*temp;
 
 	if (*list == NULL)
-		return ;
+		return (NULL);
 	while (*list)
 	{
 		temp = (*list)->next;
@@ -109,9 +109,8 @@ void	clean_and_free(t_list **list, t_list *clean_node, char *buf)
 	*list = NULL;
 	if (clean_node == 0 || buf == 0)
 	{
-		if (buf)
-			free(buf);
-		return ;
+		free(buf);
+		return (NULL);
 	}
 	if (clean_node->buf[0])
 		*list = clean_node;
@@ -120,4 +119,5 @@ void	clean_and_free(t_list **list, t_list *clean_node, char *buf)
 		free(buf);
 		free(clean_node);
 	}
+	return (NULL);
 }
